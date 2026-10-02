@@ -1,0 +1,6 @@
+[
+  {"name": "say hello", "cmd": "echo hello"},
+  {"name": "flaky step", "cmd": "test $((RANDOM % 2)) -eq 0", "retries": 5},
+  {"name": "slow step", "cmd": "sleep 5", "timeout": 1, "allow_failure": true},
+  {"name": "done", "cmd": "echo all finished"}
+]
