@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from .runner import load_tasks, run_all
+from .runner import load_tasks, run_all, run_parallel
 
 
 def main(argv=None):
@@ -9,9 +9,14 @@ def main(argv=None):
     ap.add_argument("file", help="path to tasks JSON")
     ap.add_argument("-k", "--keep-going", action="store_true", help="continue after failures")
     ap.add_argument("-v", "--verbose", action="store_true", help="show output of passing tasks")
+    ap.add_argument("-j", "--jobs", type=int, default=1, help="run N tasks at once (runs all tasks)")
     args = ap.parse_args(argv)
 
-    results = run_all(load_tasks(args.file), keep_going=args.keep_going)
+    tasks = load_tasks(args.file)
+    if args.jobs > 1:
+        results = run_parallel(tasks, args.jobs)
+    else:
+        results = run_all(tasks, keep_going=args.keep_going)
     for r in results:
         mark = "ok  " if r.ok else ("warn" if r.allowed else "FAIL")
         extra = f" (attempts: {r.attempts})" if r.attempts > 1 else ""
