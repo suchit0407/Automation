@@ -47,3 +47,19 @@ def test_allowed_failure_exit_zero(tmp_path):
     p = tmp_path / "t.json"
     p.write_text(json.dumps([{"cmd": "false", "allow_failure": True}]))
     assert main([str(p)]) == 0
+
+
+def test_parallel_is_faster_and_ordered(tmp_path):
+    import time
+    from taskrun.runner import run_parallel
+    tasks = [{"name": str(i), "cmd": "sleep 0.5"} for i in range(4)]
+    start = time.monotonic()
+    results = run_parallel(tasks, 4)
+    assert time.monotonic() - start < 1.5
+    assert [r.name for r in results] == ["0", "1", "2", "3"]
+
+
+def test_cli_jobs_flag(tmp_path):
+    p = tmp_path / "t.json"
+    p.write_text(json.dumps([{"cmd": "echo a"}, {"cmd": "echo b"}]))
+    assert main([str(p), "-j", "2"]) == 0

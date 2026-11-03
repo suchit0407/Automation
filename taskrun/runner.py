@@ -1,6 +1,7 @@
 import json
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 
@@ -59,3 +60,8 @@ def run_all(tasks, keep_going=False):
         if not r.ok and not (keep_going or r.allowed):
             break
     return results
+
+
+def run_parallel(tasks, workers):
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(run_task, tasks))
